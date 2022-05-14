@@ -1,5 +1,5 @@
 # GPPRL
-Massively Parallel PPRL implementation using CUDA C and python
+Massively Parallel PPRL implementation using CUDA C and Python
 
 Install CUDA: https://developer.nvidia.com/cuda-downloads
 
