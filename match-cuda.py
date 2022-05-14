@@ -1,23 +1,35 @@
 import base64
-import csv
 from zipfile import ZipFile
 import json
 import subprocess
-import numpy
-import sys
 import csv
 import time
+import argparse
+import os
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument("zip1", metavar='<Zip 1 path>', type=str,
+                    help='The first zipfile containing hashes')
+parser.add_argument("zip2", metavar='<Zip 2 path>', type=str,
+                    help='The second zipfile containing hashes')
+parser.add_argument("threshold", metavar='<Threshold>', type=float,
+                    help='The matching threshold')
+
+args = parser.parse_args()
+
+
+
 start = time.time()
 
-threshold = 0.85
+threshold = args.threshold
 
 results = dict()
-z1 = ZipFile("E:/NACHC PPRL Test Datasets/ymca.zip")
-z2 = ZipFile("E:/NACHC PPRL Test Datasets/ncceh.zip")
-print(z1.namelist())
+z1 = ZipFile(args.zip1)
+z2 = ZipFile(args.zip2)
+print(f"Matching on schemas: {z1.namelist()}")
 
 for path in z1.namelist():
-
+    print(f"Starting Schema {path}...")
     with z1.open(path) as f:
         j1 = json.load(f)
 
@@ -37,16 +49,15 @@ for path in z1.namelist():
         for clk in bytes_list:
             f.write(clk)
 
-    subprocess.run(["./dice-gpu-optimized.exe", str(threshold)], capture_output=True)
 
-    with open("matches.csv", "r") as f:
+    result = subprocess.run(["./dice-gpu-optimized.exe", str(threshold)], cwd=os.getcwd(), capture_output=True, text=True)
+    print(result.stdout)
+
+    with open("./matches.csv", "r") as f:
         r = csv.reader(f)
         for line in r:
-            if line[0] == "2736": print(line[1])
             if line[1] != "-1":
                 results[int(line[0])] = int(line[1])
-
-print(results)
 
 with open("results.csv", "w", newline="") as f:
     w = csv.writer(f)
@@ -54,4 +65,8 @@ with open("results.csv", "w", newline="") as f:
     w.writerows(sorted(results.items(), key=lambda item: item[0]))
 end = time.time()
 
-print(end - start)
+os.remove("./matches.csv")
+os.remove("./dataset1.bin")
+os.remove("./dataset2.bin")
+print("Results located in results.csv")
+print(f"Finished matching in: {end - start}")

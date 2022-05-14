@@ -56,11 +56,7 @@ __global__ void find_dice_coeff(char* clks1, char* clks2, int_fast16_t num_clks1
             __syncthreads();
             int dot_prod = BlockReduce(temp_storage).Sum(local_sum);
             if(index == 0){
-                if(block_index_x == 9428 && block_index_y == 223){
-                    printf("%f\n", (double) 2 * dot_prod / (mags1[block_index_x] + mags2[block_index_y]));
-                }
                 if(2 * dot_prod >= threshhold * (mags1[block_index_x] + mags2[block_index_y])){
-
                     output[block_index_x] = block_index_y + 1;
                 }
             }
@@ -76,7 +72,7 @@ int main(int argc, char* argv[]){
         threshold = 0.85;
     }
     else{
-        threshold = strtod(argv[2], NULL);
+        threshold = strtod(argv[1], NULL);
     }
 
     clock_t begin = clock();
