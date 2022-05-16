@@ -41,7 +41,6 @@ __global__ void find_dice_coeff(char* clks1, char* clks2, int_fast16_t num_clks1
             int index = threadIdx.x;
             int_fast64_t block_index_x = i;
             int_fast64_t block_index_y = j;
-            
 
             
             int32_t a = clk_ints1[index + 128 * block_index_x];
@@ -67,13 +66,15 @@ __global__ void find_dice_coeff(char* clks1, char* clks2, int_fast16_t num_clks1
 
 int main(int argc, char* argv[]){
 
-    float threshold;
-    if(argc < 2){
-        threshold = 0.85;
-    }
-    else{
+    float threshold = 0.9;
+    char* output_path = "./matches.csv";
+    if (argc >= 2){
         threshold = strtod(argv[1], NULL);
     }
+    if(argc >= 3){
+        output_path = argv[2];
+    }
+
 
     clock_t begin = clock();
     //Dataset1
@@ -136,7 +137,7 @@ int main(int argc, char* argv[]){
     int_fast64_t* output = (int_fast64_t*) malloc(num_clks_dataset1 * sizeof(int_fast64_t));
     cudaMemcpy(output, d_output, num_clks_dataset1 * sizeof(int_fast64_t), cudaMemcpyDeviceToHost);
     printf("Finished computation...\n");
-    FILE* outfile = fopen("./matches.csv", "w");
+    FILE* outfile = fopen(output_path, "w");
     for(int_fast64_t i = 0; i < num_clks_dataset1; i++){
         fprintf(outfile, "%" PRId64 ",%" PRId64 "\n", i, output[i] - 1);
     }
