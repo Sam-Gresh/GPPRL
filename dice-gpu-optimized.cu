@@ -7,7 +7,7 @@
 
 
 
-__global__ void find_magnitudes(char* clks, int_fast16_t* output){
+__global__ void find_magnitudes(char* clks, int32_t* output){
     int index = threadIdx.x;
     int block_index = blockIdx.x;
     int32_t* clk_ints = (int32_t*) clks;
@@ -29,7 +29,7 @@ __global__ void find_magnitudes(char* clks, int_fast16_t* output){
     }
 }
 
-__global__ void find_dice_coeff(char* clks1, char* clks2, int_fast16_t num_clks1, int_fast64_t num_clks2, int_fast64_t x_stride, int_fast64_t y_stride, int_fast16_t* mags1, int_fast16_t* mags2, int_fast64_t* output, float threshhold){
+__global__ void find_dice_coeff(char* clks1, char* clks2, int32_t num_clks1, int_fast64_t num_clks2, int_fast64_t x_stride, int_fast64_t y_stride, int32_t* mags1, int32_t* mags2, int_fast64_t* output, float threshhold){
     typedef cub::BlockReduce<int, 128> BlockReduce;
     __shared__ typename BlockReduce::TempStorage temp_storage;
 
@@ -89,8 +89,8 @@ int main(int argc, char* argv[]){
     size_t pitch;
     cudaMallocPitch(&d_clks_dataset1, &pitch, 512, num_clks_dataset1);
 
-    int_fast16_t* d_mags1;
-    cudaMalloc(&d_mags1, num_clks_dataset1 * sizeof(int_fast16_t));
+    int32_t* d_mags1;
+    cudaMalloc(&d_mags1, num_clks_dataset1 * sizeof(int32_t));
 
     fread(clks_dataset1, 1, 512 * num_clks_dataset1, dataset1);
     cudaMemcpy2D(d_clks_dataset1, pitch, clks_dataset1, 512, 512, num_clks_dataset1, cudaMemcpyHostToDevice);
@@ -112,8 +112,8 @@ int main(int argc, char* argv[]){
     char* d_clks_dataset2;
     cudaMallocPitch(&d_clks_dataset2, &pitch, 512, num_clks_dataset2);
 
-    int_fast16_t* d_mags2;
-    cudaMalloc(&d_mags2, num_clks_dataset2 * sizeof(int_fast16_t));
+    int32_t* d_mags2;
+    cudaMalloc(&d_mags2, num_clks_dataset2 * sizeof(int32_t));
 
     fread(clks_dataset2, 1, 512 * num_clks_dataset2, dataset2);
     cudaMemcpy2D(d_clks_dataset2, pitch, clks_dataset2, 512, 512, num_clks_dataset2, cudaMemcpyHostToDevice);
